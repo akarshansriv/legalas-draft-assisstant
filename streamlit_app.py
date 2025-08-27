@@ -1,49 +1,69 @@
 import streamlit as st
 import requests
 
-st.title("📜 AI Legal Petition Drafter")
+st.title("📜 AI Legal Petition Drafter (RAG)")
 
-with st.form("petition_form"):
-    case_type = st.text_input("Case Type", "writ_petition")
-    court_name = st.text_input("Court Name")
-    draft_type = st.text_input("draft_type", "petition")
-    jurisdiction = st.text_input("Jurisdiction")
-    petitioner = st.text_input("Petitioner")
-    respondent = st.text_input("Respondent")
-    key_dates = st.text_area("Important Dates (comma separated)")
-    relief = st.text_area("Relief Sought")
-    legal_articles = st.text_area("Legal Articles (comma separated)")
-    rules = st.text_area("Rules to Follow (comma separated)")
-    case_summary = st.text_area("Case Summary")
-    precedents = st.text_area("Precedents")
+# Form fields
+draft_type = st.selectbox("Draft Type", ["writ_petition", "review_petition", "curative_petition", "civil_suit"])
+petitioner = st.text_input("Petitioner")
+respondent = st.text_input("Respondent")
+court_name = st.text_input("Court Name")
+jurisdiction = st.text_input("Jurisdiction")
+case_type = st.text_input("Case Type", "WRIT PETITION")
+key_dates = st.text_input("Key Dates (comma separated)")
+relief = st.text_area("Relief Sought")
+legal_articles = st.text_input("Legal Articles (comma separated)")
+rules = st.text_input("Rules to follow (comma separated)")
+case_summary = st.text_area("Case Summary")
 
-    submitted = st.form_submit_button("Generate Petition")
+# File upload for ingestion
+uploaded_files = st.file_uploader(
+    "Upload reference documents (PDF/DOCX/TXT) for permanent ingestion",
+    accept_multiple_files=True,
+)
 
-if submitted:
-    payload = {
-        "case_type": case_type,
-        "court_name": court_name,
-        "draft_type": draft_type,
-        "jurisdiction": jurisdiction,
-        "petitioner": petitioner,
-        "respondent": respondent,
-        "case_summary": case_summary,
-        "key_dates": [d.strip() for d in key_dates.split(",")],
-        "relief_sought": relief,
-        "legal_articles": [a.strip() for a in legal_articles.split(",")],
-        "rules_to_follow": [r.strip() for r in rules.split(",")],
-        "precedents": [p.strip() for p in precedents.split(",")],
-    }
-
-    with st.spinner("Generating..."):
-        res = requests.post("http://localhost:8000/generate", json=payload)
-
-    if res.status_code == 200:
-        with open("petition.docx", "wb") as f:
-            f.write(res.content)
-        st.success("Petition generated!")
-        st.download_button(
-            "Download Petition", data=res.content, file_name="petition.docx"
-        )
+# Ingest files permanently into the knowledge base
+if st.button("Ingest Files"):
+    if not uploaded_files:
+        st.warning("Please upload at least one file to ingest.")
     else:
-        st.error("Failed to generate petition.")
+        files = []
+        for f in uploaded_files:
+            files.append(("files", (f.name, f.getvalue(), f.type)))
+        with st.spinner("Ingesting into knowledge base..."):
+            res = requests.post("http://localhost:8000/ingest", files=files)
+            if res.status_code == 200:
+                st.success("Files ingested successfully into the knowledge base!")
+            else:
+                st.error(f"Ingestion failed: {res.status_code} {res.text}")
+
+# Generate draft using already ingested files
+if st.button("Generate Draft"):
+    with st.spinner("Generating..."):
+        data = {
+            "draft_type": draft_type,
+            "petitioner": petitioner,
+            "respondent": respondent,
+            "court_name": court_name,
+            "jurisdiction": jurisdiction,
+            "case_type": case_type,
+            "key_dates": key_dates,
+            "relief_sought": relief,
+            "legal_articles": legal_articles,
+            "rules_to_follow": rules,
+            "case_summary": case_summary,
+        }
+
+        res = requests.post("http://localhost:8000/generate", data=data)
+        if res.status_code == 200:
+            with open("petition.docx", "wb") as f:
+                f.write(res.content)
+            st.success("Draft generated successfully!")
+            st.download_button(
+                "Download Petition",
+                data=open("petition.docx", "rb"),
+                file_name="petition.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            )
+        else:
+            st.error(f"Generation failed: {res.status_code} {res.text}")
