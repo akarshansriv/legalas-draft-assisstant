@@ -1,4 +1,5 @@
 import os
+import re
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -102,6 +103,14 @@ def generate_petition(data: dict):
 
     # Post-process: replace literal \n sequences
     raw_text = raw_text.replace("\\n", "\n")
+
+    # Cleanup: strip Markdown/bold/italics markers and backticks
+    # 1) Remove bold markers
+    raw_text = raw_text.replace("**", "")
+    # 2) Remove any remaining single asterisks
+    raw_text = raw_text.replace("*", "")
+    # 3) Remove backticks
+    raw_text = raw_text.replace("`", "")
 
     # Export to docx
     file_path = export_to_docx(raw_text)
