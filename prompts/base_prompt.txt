@@ -31,5 +31,7 @@ Formatting and drafting instructions:
 - Avoid repetition and filler content; prefer concise, well-structured paragraphs.
 - End with a proper verification and sign-off with date and advocate's name placeholder where applicable.
 
+Additional Instructions: {instructions}
+
 Where helpful, incorporate relevant context from any notices or prior orders provided below. Summarize and integrate them into facts/grounds rather than reproducing them:
 {notice_text}

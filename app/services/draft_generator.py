@@ -86,6 +86,7 @@ def generate_petition(data: dict):
         rules_to_follow=", ".join(data.get("rules_to_follow", [])),
         precedents=", ".join(data.get("legal_articles", [])),
         case_summary=data.get("case_summary", ""),
+        instructions=data.get("instructions", ""),
         notice_text=context_text,
         style_reference=style_reference,
     )

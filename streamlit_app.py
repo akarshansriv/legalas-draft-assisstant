@@ -15,6 +15,7 @@ relief = st.text_area("Relief Sought")
 legal_articles = st.text_input("Legal Articles (comma separated)")
 rules = st.text_input("Rules to follow (comma separated)")
 case_summary = st.text_area("Case Summary")
+instructions = st.text_area("Additional Instructions (optional)", placeholder="e.g., Explain every bullet point in detail, emphasize on these dates, etc.")
 
 # File upload for ingestion
 uploaded_files = st.file_uploader(
@@ -52,6 +53,7 @@ if st.button("Generate Draft"):
             "legal_articles": legal_articles,
             "rules_to_follow": rules,
             "case_summary": case_summary,
+            "instructions": instructions,
         }
 
         res = requests.post("http://localhost:8000/generate", data=data)

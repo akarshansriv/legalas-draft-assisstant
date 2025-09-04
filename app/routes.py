@@ -44,6 +44,7 @@ async def generate(
     legal_articles: str = Form(""),
     rules_to_follow: str = Form(""),
     case_summary: str = Form(""),
+    instructions: str = Form(""),
     files: Optional[List[UploadFile]] = File(None),
     download: bool = Form(True),
 ):
@@ -80,6 +81,7 @@ async def generate(
         "legal_articles": [a.strip() for a in legal_articles.split(",") if a.strip()],
         "rules_to_follow": [r.strip() for r in rules_to_follow.split(",") if r.strip()],
         "case_summary": case_summary,
+        "instructions": instructions,
     }
 
     # 4) Generate draft and return DOCX or JSON

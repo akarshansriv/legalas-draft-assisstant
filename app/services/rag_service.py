@@ -31,7 +31,8 @@ class RAGService:
         if self.permanent_store is None:
             self.permanent_store = Chroma(
                 persist_directory=self.permanent_db_path,
-                embedding_function=self.get_embeddings()
+                embedding_function=self.get_embeddings(),
+                collection_name="permanent_kb"
             )
         return self.permanent_store
     
@@ -40,7 +41,8 @@ class RAGService:
         if self.temp_store is None:
             self.temp_store = Chroma(
                 persist_directory=self.temp_db_path,
-                embedding_function=self.get_embeddings()
+                embedding_function=self.get_embeddings(),
+                collection_name="temp_kb"
             )
         return self.temp_store
     
@@ -59,7 +61,10 @@ class RAGService:
             split_docs.extend(
                 text_splitter.create_documents(
                     [doc["text"]], 
-                    metadatas=[{"source": doc["source"]}]
+                    metadatas=[{
+                        "source": doc.get("source", "unknown"),
+                        "draft_type": doc.get("draft_type")
+                    }]
                 )
             )
         
@@ -79,12 +84,9 @@ class RAGService:
         # Search permanent store
         if self.permanent_store:
             try:
-                # If draft_type is specified, enhance query to include draft type
-                enhanced_query = query
-                if draft_type:
-                    enhanced_query = f"{draft_type} {query}"
-                
-                perm_results = self.permanent_store.similarity_search(enhanced_query, k=top_k)
+                # Use metadata filter when draft_type provided
+                chroma_filter = {"draft_type": draft_type} if draft_type else None
+                perm_results = self.permanent_store.similarity_search(query, k=top_k, filter=chroma_filter)
                 for doc in perm_results:
                     results.append({
                         "source": doc.metadata.get("source", "permanent_kb"),
