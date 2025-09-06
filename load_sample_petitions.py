@@ -47,35 +47,35 @@ def load_sample_petitions():
                     print(f"✓ Loaded: {petition_type.title()} / {name}")
                 except Exception as e:
                     print(f"✗ Error loading {file_path}: {e}")
-    else:
-        # Backward-compatible fallback to flat files mapping
-        sample_files = [
-            ("writ_petition_sample.txt", "writ petition"),
-            ("review_petition_sample.txt", "review petition"), 
-            ("curative_petition_sample.txt", "curative petition"),
-            ("civil_suit_sample.txt", "civil suit")
-        ]
+    # else:
+    #     # Backward-compatible fallback to flat files mapping
+    #     sample_files = [
+    #         ("writ_petition_sample.txt", "writ petition"),
+    #         ("review_petition_sample.txt", "review petition"), 
+    #         ("curative_petition_sample.txt", "curative petition"),
+    #         ("civil_suit_sample.txt", "civil suit")
+    #     ]
 
-        for filename, petition_type in sample_files:
-            file_path = os.path.join(sample_dir, filename)
+    #     for filename, petition_type in sample_files:
+    #         file_path = os.path.join(sample_dir, filename)
             
-            if os.path.exists(file_path):
-                try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        content = f.read()
+    #         if os.path.exists(file_path):
+    #             try:
+    #                 with open(file_path, 'r', encoding='utf-8') as f:
+    #                     content = f.read()
                     
-                    docs.append({
-                        "source": f"Sample {petition_type.title()}",
-                        "text": content,
-                        "draft_type": petition_type
-                    })
+    #                 docs.append({
+    #                     "source": f"Sample {petition_type.title()}",
+    #                     "text": content,
+    #                     "draft_type": petition_type
+    #                 })
                     
-                    print(f"✓ Loaded: {petition_type.title()}")
+    #                 print(f"✓ Loaded: {petition_type.title()}")
                     
-                except Exception as e:
-                    print(f"✗ Error loading {filename}: {e}")
-            else:
-                print(f"✗ File not found: {filename}")
+    #             except Exception as e:
+    #                 print(f"✗ Error loading {filename}: {e}")
+    #         else:
+    #             print(f"✗ File not found: {filename}")
     
     # Ingest documents into permanent knowledge base
     if docs:
