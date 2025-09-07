@@ -2,8 +2,33 @@ from io import BytesIO
 from pdfminer.high_level import extract_text
 from docx import Document
 import PyPDF2
+import pymupdf4llm
 from fastapi import UploadFile
 from typing import Union
+
+def load_pdf_pymupdf4llm(file_bytes: bytes) -> str:
+    """Load PDF using pymupdf4llm with optimized text extraction for LLMs"""
+    try:
+        # Use pymupdf4llm for better text extraction optimized for LLMs
+        # This handles OCR automatically and provides better formatting
+        text = pymupdf4llm.to_markdown(file_bytes)
+        return text
+    except Exception as e:
+        print(f"pymupdf4llm failed: {e}")
+        # Fallback to basic text extraction
+        try:
+            import fitz
+            doc = fitz.open(stream=file_bytes, filetype="pdf")
+            text_parts = []
+            for page_num in range(len(doc)):
+                page = doc.load_page(page_num)
+                text = page.get_text()
+                text_parts.append(text)
+            doc.close()
+            return "\n\n".join(text_parts)
+        except Exception as e2:
+            print(f"Fallback PyMuPDF also failed: {e2}")
+            raise e2
 
 def load_pdf(file_bytes: bytes) -> str:
     """Load PDF using pdfminer for better text extraction"""
@@ -44,10 +69,17 @@ def load_file(file: Union[UploadFile, any]) -> str:
     
     if ext in ['pdf']:
         try:
-            return load_pdf(raw)
-        except Exception:
-            # Fallback to PyPDF2
-            return load_pdf_pypdf2(raw)
+            # Try pymupdf4llm first (with OCR support and LLM optimization)
+            return load_pdf_pymupdf4llm(raw)
+        except Exception as e:
+            print(f"PyMuPDF failed: {e}")
+            try:
+                # Fallback to pdfminer
+                return load_pdf(raw)
+            except Exception as e2:
+                print(f"pdfminer failed: {e2}")
+                # Final fallback to PyPDF2
+                return load_pdf_pypdf2(raw)
     elif ext in ['docx', 'doc']:
         return load_docx(raw)
     elif ext in ['txt']:
@@ -62,10 +94,17 @@ async def load_file_async(file: UploadFile) -> str:
     
     if ext in ['pdf']:
         try:
-            return load_pdf(raw)
-        except Exception:
-            # Fallback to PyPDF2
-            return load_pdf_pypdf2(raw)
+            # Try pymupdf4llm first (with OCR support and LLM optimization)
+            return load_pdf_pymupdf4llm(raw)
+        except Exception as e:
+            print(f"PyMuPDF failed: {e}")
+            try:
+                # Fallback to pdfminer
+                return load_pdf(raw)
+            except Exception as e2:
+                print(f"pdfminer failed: {e2}")
+                # Final fallback to PyPDF2
+                return load_pdf_pypdf2(raw)
     elif ext in ['docx', 'doc']:
         return load_docx(raw)
     elif ext in ['txt']:

@@ -36,12 +36,24 @@ def load_sample_petitions_simple():
             petition_type = draft_folder.replace('_', ' ').strip().lower()
             folder_path = os.path.join(sample_dir, draft_folder)
             for name in os.listdir(folder_path):
-                if not name.lower().endswith('.txt'):
+                if not (name.lower().endswith('.txt') or name.lower().endswith('.docx') or name.lower().endswith('.pdf')):
                     continue
                 file_path = os.path.join(folder_path, name)
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        content = f.read()
+                    if name.lower().endswith('.docx'):
+                        # Load DOCX file
+                        from utils.document_loader import load_docx
+                        with open(file_path, 'rb') as f:
+                            content = load_docx(f.read())
+                    elif name.lower().endswith('.pdf'):
+                        # Load PDF file with OCR support using pymupdf4llm
+                        from utils.document_loader import load_pdf_pymupdf4llm
+                        with open(file_path, 'rb') as f:
+                            content = load_pdf_pymupdf4llm(f.read())
+                    else:
+                        # Load TXT file
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
                     documents.append(content)
                     metadatas.append({"source": f"Sample {petition_type.title()} - {name}", "draft_type": petition_type})
                     ids.append(f"sample_{petition_type.replace(' ', '_')}_{os.path.splitext(name)[0]}")
