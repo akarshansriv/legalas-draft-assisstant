@@ -17,3 +17,4 @@ langchain-community
 langchain-openai
 PyPDF2
 opensearch-py
+pymupdf4llm

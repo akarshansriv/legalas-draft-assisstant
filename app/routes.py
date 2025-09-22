@@ -34,8 +34,8 @@ async def ingest(files: List[UploadFile] = File(...)):
 @router.post("/generate")
 async def generate(
     draft_type: str = Form(...),
-    petitioner: str = Form(...),
-    respondent: str = Form(...),
+    petitioners: str = Form(...),  # JSON string of petitioners list
+    respondents: str = Form(...),  # JSON string of respondents list
     court_name: str = Form(...),
     jurisdiction: str = Form(...),
     case_type: str = Form(...),
@@ -46,6 +46,7 @@ async def generate(
     case_summary: str = Form(""),
     instructions: str = Form(""),
     files: Optional[List[UploadFile]] = File(None),
+    annexure_files: Optional[List[UploadFile]] = File(None),
     download: bool = Form(True),
 ):
     # 1) Load permanent KB docs into the RAG index
@@ -68,11 +69,33 @@ async def generate(
     if docs:
         ingest_documents(docs)
 
-    # 3) Build payload for generator
+    # 3) Process annexure files separately
+    annexure_docs = []
+    if annexure_files:
+        for f in annexure_files:
+            try:
+                text = await load_file_async(f)
+                annexure_docs.append({"source": f.filename, "text": text})
+            except Exception:
+                # skip unreadable files
+                continue
+
+    # 4) Build payload for generator
+    import json
+    
+    # Parse petitioners and respondents from JSON strings
+    try:
+        petitioners_list = json.loads(petitioners) if petitioners else []
+        respondents_list = json.loads(respondents) if respondents else []
+    except json.JSONDecodeError:
+        # Fallback: treat as comma-separated strings
+        petitioners_list = [p.strip() for p in petitioners.split(",") if p.strip()] if petitioners else []
+        respondents_list = [r.strip() for r in respondents.split(",") if r.strip()] if respondents else []
+    
     payload = {
         "draft_type": draft_type,
-        "petitioner": petitioner,
-        "respondent": respondent,
+        "petitioners": petitioners_list,
+        "respondents": respondents_list,
         "court_name": court_name,
         "jurisdiction": jurisdiction,
         "case_type": case_type,
@@ -82,9 +105,10 @@ async def generate(
         "rules_to_follow": [r.strip() for r in rules_to_follow.split(",") if r.strip()],
         "case_summary": case_summary,
         "instructions": instructions,
+        "annexure_files": annexure_docs,
     }
 
-    # 4) Generate draft and return DOCX or JSON
+    # 5) Generate draft and return DOCX or JSON
     result = generate_petition(payload)
     if download and result.get("file_path"):
         return FileResponse(path=result["file_path"], filename="petition.docx")

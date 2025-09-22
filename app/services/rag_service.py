@@ -13,7 +13,7 @@ class RAGService:
         self.embeddings = None
         self.permanent_store = None
         self.temp_store = None
-        self.permanent_db_path = "./kb_store"
+        self.permanent_db_path = "./kb_store_1"
         self.temp_db_path = "./temp/chroma_db"
         
         # Ensure directories exist

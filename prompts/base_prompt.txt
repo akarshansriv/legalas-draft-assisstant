@@ -7,9 +7,9 @@ IN THE {court_name}
 {case_type} NO. ______ OF {year}
 
 IN THE MATTER OF:
-{petitioner} ................Petitioner
+{petitioners} ................Petitioners
 -VS-
-{respondent} ................Respondent
+{respondents} ................Respondents
 
 Below are the required details to include and adapt into the body of the draft:
 - Jurisdiction: {jurisdiction}
@@ -26,12 +26,65 @@ Style Reference (use only for structure and formatting cues; do not copy text):
 Formatting and drafting instructions:
 - Maintain a formal, court-ready tone and accurate legal language.
 - Use section headings and ordering similar to the style reference for this draft_type (e.g., introductory averments, GROUNDS, PRAYER, VERIFICATION). If not applicable, choose the most appropriate conventional structure for the draft_type.
-- Keep headings in a consistent style (e.g., uppercase for main headings) and use standard paragraph formatting. Avoid Markdown or decorative formatting.
+- Keep headings in a consistent style (e.g., uppercase for main headings) and use standard paragraph formatting.
+- Output PLAIN TEXT ONLY. Do not use Markdown, asterisks, backticks, underscores, or any decorative symbols. Do not surround headings or text with **, *, __, or similar markers.
 - Integrate the notice/context excerpts and any retrieved references naturally, citing where appropriate.
-- Avoid repetition and filler content; prefer concise, well-structured paragraphs.
 - End with a proper verification and sign-off with date and advocate's name placeholder where applicable.
 
+DETAILED CONTENT REQUIREMENTS:
+- Generate COMPREHENSIVE and DETAILED content with substantial depth and legal analysis.
+- For the GROUNDS section: Create 8-12 detailed bullet points, each containing 100-200 words.
+- For the PRAYER section: Create 8-12 detailed prayer points, each containing 100-200 words.
+- Each bullet point must thoroughly explain and analyze the legal issues, facts, and implications.
+- Every date and event from the key_dates input must be extensively discussed and explained in detail.
+- Include detailed legal analysis, precedent references, constitutional provisions, and statutory provisions where relevant.
+- Provide comprehensive factual background, legal reasoning, and detailed arguments for each point.
+- Ensure each bullet point is substantial, well-reasoned, and legally sound.
+- Avoid superficial or brief explanations; provide thorough legal analysis and detailed reasoning.
+
 Additional Instructions: {instructions}
+
+MANDATORY SECTIONS FOR ALL PETITION TYPES:
+
+1. INDEX SECTION (Table of Contents):
+After the case caption and before the main petition body, include an INDEX section with the following structure:
+
+INDEX
+
+S.No. | Description | Page No.
+1 | List of Dates and Events | 2
+2 | Application for Interim Relief | 3
+3 | Grounds | [X]
+4 | Prayer | [Y]
+5 | Verification | [Z]
+
+IMPORTANT: If annexure information is provided in the context, automatically add annexure entries to the INDEX table. Each annexure should be listed with its number and description in the format:
+[Next S.No.] | ANNEXURE NO. [Number]: [Description] | [Page No.]
+
+For example:
+6 | ANNEXURE NO. 1: Copy of the letter dated 26.07.2024 | [Page No.]
+7 | ANNEXURE NO. 2: Copy of the sale deed | [Page No.]
+8 | ANNEXURE NO. 3: Copy of the final judgement and order | [Page No.]
+
+2. LIST OF DATED AND EVENTS SECTION:
+After the INDEX section, include a LIST OF DATED AND EVENTS section with the following structure:
+
+LIST OF DATED AND EVENTS
+
+S.No. | Date | Event Description
+1 | [Date from key_dates] | [Event description]
+2 | [Date from key_dates] | [Event descƒ ̰ription]
+3 | [Date from key_dates] | [Event description]
+... | ... | ...
+
+Note: Extract dates and events from the key_dates input and present them in chronological order in tabular format.
+
+IMPORTANT TABLE FORMATTING RULES:
+- Use the simplified table format shown above with | characters as separators
+- Do NOT include header rows with dashes (-------) or separator lines
+- Do NOT include markdown table formatting
+- Each data row should have the format: S.No. | Description | Page No.
+- The tables will be automatically converted to proper Word tables in the final document
 
 Where helpful, incorporate relevant context from any notices or prior orders provided below. Summarize and integrate them into facts/grounds rather than reproducing them:
 {notice_text}
